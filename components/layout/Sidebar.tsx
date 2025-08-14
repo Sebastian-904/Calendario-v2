@@ -1,0 +1,109 @@
+
+import React from 'react';
+import { Building2, Users, Calendar as CalIcon, ClipboardList, FileText, Settings, UserPlus, Edit, Trash2 } from 'lucide-react';
+import type { Company, User, AppPermissions } from '../../types';
+import { Card, CardContent } from '../ui/Card';
+import Button from '../ui/Button';
+import SectionTitle from '../shared/SectionTitle';
+import NavItem from '../shared/NavItem';
+import Badge from '../shared/Badge';
+
+interface SidebarProps {
+  companies: Company[];
+  companyId: string;
+  setCompanyId: (id: string) => void;
+  company: Company;
+  tab: string;
+  setTab: (tab: string) => void;
+  users: User[];
+  onNewCompany: () => void;
+  onEditCompany: () => void;
+  onNewUser: () => void;
+  onEditUser: (user: User) => void;
+  onDeleteUser: (userId: string) => void;
+  permissions: AppPermissions;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({
+  companies, companyId, setCompanyId, company, tab, setTab, users, 
+  onNewCompany, onEditCompany, onNewUser, onEditUser, onDeleteUser, permissions
+}) => {
+  return (
+    <aside className="col-span-12 lg:col-span-3 space-y-6">
+      <Card>
+        <CardContent className="space-y-3">
+          <div className="text-sm text-zinc-500 dark:text-zinc-400">Company</div>
+          <div className="flex items-center gap-2">
+            <Building2 className="w-4 h-4 text-zinc-600 dark:text-zinc-300 flex-shrink-0" />
+            <select
+              title="Select company"
+              value={companyId}
+              onChange={(e) => setCompanyId(e.target.value)}
+              className="flex-1 w-full bg-zinc-100 dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-700 rounded-lg px-3 py-2 text-zinc-800 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              disabled={!permissions.canManageCompanies}
+            >
+              {companies.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+            </select>
+          </div>
+          <div className="text-xs text-zinc-500 dark:text-zinc-500 pl-6">Tax ID: {company?.rfc || "N/A"}</div>
+          {permissions.canManageCompanies && (
+            <div className="flex gap-2 mt-3 pl-6">
+              <Button title="Add new company" size="sm" variant="outline" onClick={onNewCompany}>New</Button>
+              <Button title="Edit current company" size="sm" variant="ghost" onClick={onEditCompany} disabled={!companyId}>Edit</Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="p-0">
+          <nav className="flex flex-col">
+            <NavItem icon={CalIcon} label="Calendar" active={tab === 'calendar'} onClick={() => setTab('calendar')} />
+            <NavItem icon={ClipboardList} label="Tasks" active={tab === 'tasks'} onClick={() => setTab('tasks')} />
+            {permissions.canAccessReports && <NavItem icon={FileText} label="Reports" active={tab === 'reports'} onClick={() => setTab('reports')} />}
+            {permissions.canAccessSettings && <NavItem icon={Settings} label="Settings" active={tab === 'settings'} onClick={() => setTab('settings')} />}
+          </nav>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent>
+          <SectionTitle 
+            icon={Users}
+            right={permissions.canManageUsers && (
+              <Button size="sm" variant="ghost" onClick={onNewUser} title="Add New User">
+                <UserPlus className="w-4 h-4" />
+              </Button>
+            )}
+          >
+            Team
+          </SectionTitle>
+          <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
+            {users.map(u => (
+              <div key={u.id} className="flex items-center justify-between bg-zinc-100 dark:bg-zinc-800/60 rounded-lg p-2 group">
+                <div>
+                  <div className="text-sm font-medium text-zinc-800 dark:text-zinc-100">{u.name}</div>
+                  <div className="text-xs text-zinc-500 dark:text-zinc-400">{u.email}</div>
+                  <div className="mt-1"><Badge>{u.role.split('_').join(' ')}</Badge></div>
+                </div>
+                {permissions.canManageUsers && (
+                  <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Button size="sm" variant="ghost" onClick={() => onEditUser(u)} title="Edit User">
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button size="sm" variant="ghost" className="text-zinc-500 hover:text-rose-600 dark:text-zinc-400 dark:hover:text-rose-400" onClick={() => onDeleteUser(u.id)} title="Delete User">
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                  </div>
+                )}
+              </div>
+            ))}
+             {users.length === 0 && <p className="text-sm text-center text-zinc-500 dark:text-zinc-400 py-4">No users in this company yet.</p>}
+          </div>
+        </CardContent>
+      </Card>
+    </aside>
+  );
+};
+
+export default Sidebar;
