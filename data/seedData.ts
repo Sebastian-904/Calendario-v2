@@ -25,12 +25,12 @@ export const seedUsers: Record<string, User[]> = {
   ],
 };
 
-export const DEFAULT_CATEGORIES: Categories = {
-  fiscal: { label: "Fiscal", dot: "bg-blue-400" },
-  customs: { label: "Customs", dot: "bg-emerald-400" },
-  certification: { label: "Certification", dot: "bg-violet-400" },
-  treaty: { label: "Treaty", dot: "bg-amber-400" },
-  legal: { label: "Legal", dot: "bg-rose-400" },
+export const DEFAULT_CATEGORY_CONFIG = {
+  fiscal: "bg-blue-400",
+  customs: "bg-emerald-400",
+  certification: "bg-violet-400",
+  treaty: "bg-amber-400",
+  legal: "bg-rose-400",
 };
 
 export const seedEvents: Record<string, CalendarEvent[]> = {

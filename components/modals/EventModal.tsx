@@ -1,9 +1,9 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { X } from 'lucide-react';
 import type { User, Categories, CalendarEvent, AppPermissions } from '../../types';
 import Button from '../ui/Button';
 import { todayISO } from '../../utils/helpers';
+import { useTranslation } from '../../hooks/useTranslation';
 
 interface EventModalProps {
   open: boolean;
@@ -17,6 +17,7 @@ interface EventModalProps {
 }
 
 const EventModal: React.FC<EventModalProps> = ({ open, onClose, onSave, presetDate, editingEvent, users, categories, permissions }) => {
+  const { t } = useTranslation();
   const isEditing = !!editingEvent;
 
   const getInitialState = useCallback(() => {
@@ -68,21 +69,21 @@ const EventModal: React.FC<EventModalProps> = ({ open, onClose, onSave, presetDa
     <div className="fixed inset-0 bg-black/50 dark:bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="w-full max-w-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl shadow-2xl animate-in fade-in-0 zoom-in-95">
         <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
-          <h3 className="text-zinc-900 dark:text-zinc-100 font-semibold text-lg">{isEditing ? 'Edit Task / Event' : 'New Task / Event'}</h3>
-          <button onClick={onClose} className="text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200" title="Close"><X className="w-5 h-5" /></button>
+          <h3 className="text-zinc-900 dark:text-zinc-100 font-semibold text-lg">{isEditing ? t('event_modal.edit_title') : t('event_modal.new_title')}</h3>
+          <button onClick={onClose} className="text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200" title={t('general.close')}><X className="w-5 h-5" /></button>
         </div>
         <div className="p-6 space-y-4">
           <div>
-            <label className="block text-sm text-zinc-600 dark:text-zinc-400 mb-1.5">Title</label>
-            <input className={commonInputStyles} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="e.g., Monthly tax declaration" />
+            <label className="block text-sm text-zinc-600 dark:text-zinc-400 mb-1.5">{t('general.title')}</label>
+            <input className={commonInputStyles} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder={t('event_modal.title_placeholder')} />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm text-zinc-600 dark:text-zinc-400 mb-1.5">Date</label>
+              <label className="block text-sm text-zinc-600 dark:text-zinc-400 mb-1.5">{t('general.date')}</label>
               <input type="date" className={commonInputStyles} value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
             </div>
             <div>
-              <label className="block text-sm text-zinc-600 dark:text-zinc-400 mb-1.5">Category</label>
+              <label className="block text-sm text-zinc-600 dark:text-zinc-400 mb-1.5">{t('general.category')}</label>
               <select className={commonInputStyles} value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
                 {Object.entries(categories).map(([k, v]) => (<option key={k} value={k}>{v.label}</option>))}
               </select>
@@ -90,32 +91,32 @@ const EventModal: React.FC<EventModalProps> = ({ open, onClose, onSave, presetDa
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm text-zinc-600 dark:text-zinc-400 mb-1.5">Priority</label>
+              <label className="block text-sm text-zinc-600 dark:text-zinc-400 mb-1.5">{t('general.priority')}</label>
               <select className={commonInputStyles} value={form.priority} onChange={(e) => setForm({ ...form, priority: e.target.value as any })}>
-                <option value="High">High</option>
-                <option value="Medium">Medium</option>
-                <option value="Low">Low</option>
+                <option value="High">{t('priorities.High')}</option>
+                <option value="Medium">{t('priorities.Medium')}</option>
+                <option value="Low">{t('priorities.Low')}</option>
               </select>
             </div>
             <div>
-              <label className="block text-sm text-zinc-600 dark:text-zinc-400 mb-1.5">Assignee</label>
+              <label className="block text-sm text-zinc-600 dark:text-zinc-400 mb-1.5">{t('event_modal.assignee')}</label>
               <select className={commonInputStyles} value={form.assignee} onChange={(e) => setForm({ ...form, assignee: e.target.value })}>
                  {users?.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
               </select>
             </div>
           </div>
           <div>
-            <label className="block text-sm text-zinc-600 dark:text-zinc-400 mb-1.5">Status</label>
+            <label className="block text-sm text-zinc-600 dark:text-zinc-400 mb-1.5">{t('general.status')}</label>
             <select className={commonInputStyles} value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value as any })}>
-              <option value="Pending">Pending</option>
-              <option value="In Progress">In Progress</option>
-              <option value="Completed">Completed</option>
+              <option value="Pending">{t('statuses.Pending')}</option>
+              <option value="In Progress">{t('statuses.In Progress')}</option>
+              <option value="Completed">{t('statuses.Completed')}</option>
             </select>
           </div>
         </div>
         <div className="p-4 border-t border-zinc-200 dark:border-zinc-800 flex justify-end gap-2">
-          <Button title="Cancel" variant="ghost" onClick={onClose}>Cancel</Button>
-          <Button title="Save" onClick={handleSave} disabled={!canSave}>Save Changes</Button>
+          <Button title={t('general.cancel')} variant="ghost" onClick={onClose}>{t('general.cancel')}</Button>
+          <Button title={t('general.save')} onClick={handleSave} disabled={!canSave}>{t('event_modal.save_changes')}</Button>
         </div>
       </div>
     </div>

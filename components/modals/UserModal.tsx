@@ -1,8 +1,8 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { X } from 'lucide-react';
 import type { User, Role } from '../../types';
 import Button from '../ui/Button';
+import { useTranslation } from '../../hooks/useTranslation';
 
 interface UserModalProps {
   open: boolean;
@@ -13,6 +13,7 @@ interface UserModalProps {
 }
 
 const UserModal: React.FC<UserModalProps> = ({ open, onClose, onSave, editingUser, currentUserRole }) => {
+  const { t } = useTranslation();
   const isEditing = !!editingUser;
 
   const getInitialState = useCallback(() => {
@@ -62,37 +63,37 @@ const UserModal: React.FC<UserModalProps> = ({ open, onClose, onSave, editingUse
     <div className="fixed inset-0 bg-black/50 dark:bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl shadow-2xl animate-in fade-in-0 zoom-in-95">
         <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
-          <h3 className="text-zinc-900 dark:text-zinc-100 font-semibold text-lg">{isEditing ? 'Edit User' : 'Add New User'}</h3>
-          <button onClick={onClose} className="text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200" title="Close"><X className="w-5 h-5" /></button>
+          <h3 className="text-zinc-900 dark:text-zinc-100 font-semibold text-lg">{isEditing ? t('user_modal.edit_title') : t('user_modal.new_title')}</h3>
+          <button onClick={onClose} className="text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200" title={t('general.close')}><X className="w-5 h-5" /></button>
         </div>
         <div className="p-6 space-y-4">
           <div>
-            <label className="block text-sm text-zinc-600 dark:text-zinc-400 mb-1.5">Full Name</label>
-            <input className={commonInputStyles} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="e.g., John Doe" />
+            <label className="block text-sm text-zinc-600 dark:text-zinc-400 mb-1.5">{t('user_modal.full_name')}</label>
+            <input className={commonInputStyles} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder={t('user_modal.full_name_placeholder')} />
           </div>
           <div>
             <label className="block text-sm text-zinc-600 dark:text-zinc-400 mb-1.5">Email</label>
-            <input type="email" className={commonInputStyles} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="e.g., john.doe@company.com" />
+            <input type="email" className={commonInputStyles} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder={t('user_modal.email_placeholder')} />
           </div>
           <div>
-            <label className="block text-sm text-zinc-600 dark:text-zinc-400 mb-1.5">Role</label>
+            <label className="block text-sm text-zinc-600 dark:text-zinc-400 mb-1.5">{t('user_modal.role')}</label>
             <select 
               className={commonInputStyles} 
               value={form.role} 
               onChange={(e) => setForm({ ...form, role: e.target.value as Role })}
               disabled={editingUser?.role === 'consultor' || editingUser?.role === 'admin'}
             >
-              {canAssignAdmin && <option value="cliente_admin">Client – Admin</option>}
-              <option value="cliente_miembro">Client – Member</option>
+              {canAssignAdmin && <option value="cliente_admin">{t('user_modal.role_client_admin')}</option>}
+              <option value="cliente_miembro">{t('user_modal.role_client_member')}</option>
             </select>
             {(editingUser?.role === 'consultor' || editingUser?.role === 'admin') && (
-                <p className="text-xs text-zinc-500 mt-1">The Admin and Consultant roles cannot be changed.</p>
+                <p className="text-xs text-zinc-500 mt-1">{t('user_modal.role_restriction_note')}</p>
             )}
           </div>
         </div>
         <div className="p-4 border-t border-zinc-200 dark:border-zinc-800 flex justify-end gap-2">
-          <Button title="Cancel" variant="ghost" onClick={onClose}>Cancel</Button>
-          <Button title="Save" onClick={handleSave}>Save User</Button>
+          <Button title={t('general.cancel')} variant="ghost" onClick={onClose}>{t('general.cancel')}</Button>
+          <Button title={t('general.save')} onClick={handleSave}>{t('user_modal.save_user')}</Button>
         </div>
       </div>
     </div>

@@ -1,9 +1,9 @@
-
 import React, { useMemo } from 'react';
 import { Plus } from 'lucide-react';
 import { Card, CardContent } from '../ui/Card';
 import { classNames, todayISO } from '../../utils/helpers';
 import type { CalendarEvent, Categories } from '../../types';
+import { useTranslation } from '../../hooks/useTranslation';
 
 interface SimpleMonthCalendarProps {
   events: CalendarEvent[];
@@ -13,6 +13,7 @@ interface SimpleMonthCalendarProps {
 }
 
 const SimpleMonthCalendar: React.FC<SimpleMonthCalendarProps> = ({ events, onNew, onEventClick, categories }) => {
+  const { t } = useTranslation();
   const now = new Date();
   const year = now.getFullYear();
   const month = now.getMonth();
@@ -38,11 +39,16 @@ const SimpleMonthCalendar: React.FC<SimpleMonthCalendarProps> = ({ events, onNew
     return m;
   }, [events]);
 
+  const weekdays = [
+    t('weekdays.mon'), t('weekdays.tue'), t('weekdays.wed'), 
+    t('weekdays.thu'), t('weekdays.fri'), t('weekdays.sat'), t('weekdays.sun')
+  ];
+
   return (
     <Card className="overflow-hidden">
       <CardContent className="p-0">
         <div className="grid grid-cols-7 text-xs text-center text-zinc-500 dark:text-zinc-400 border-b border-zinc-200 dark:border-zinc-800">
-          {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d) => (
+          {weekdays.map((d) => (
             <div key={d} className="px-3 py-2 font-semibold">{d}</div>
           ))}
         </div>
@@ -64,7 +70,7 @@ const SimpleMonthCalendar: React.FC<SimpleMonthCalendarProps> = ({ events, onNew
                     <button
                       onClick={() => onNew && onNew(iso as string)}
                       className="text-zinc-400 hover:text-zinc-800 dark:text-zinc-500 dark:hover:text-zinc-100 opacity-0 group-hover:opacity-100 transition-opacity"
-                      title="New task on this date"
+                      title={t('calendar_widget.new_task_on_date')}
                     >
                       <Plus className="w-4 h-4" />
                     </button>
@@ -83,7 +89,7 @@ const SimpleMonthCalendar: React.FC<SimpleMonthCalendarProps> = ({ events, onNew
                     </div>
                   ))}
                   {dayEvents.length > 3 && (
-                    <div className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1 pl-2">+{dayEvents.length - 3} more...</div>
+                    <div className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1 pl-2">{t('calendar_widget.more', { count: dayEvents.length - 3 })}</div>
                   )}
                 </div>
               </div>

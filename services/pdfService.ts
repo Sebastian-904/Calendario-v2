@@ -1,12 +1,22 @@
-
 import type { Company, CalendarEvent, User } from '../types';
 import { fmtDate } from '../utils/helpers';
+
+export interface PdfTranslations {
+  companyLabel: string;
+  taxIdLabel: string;
+  generatedLabel: string;
+  tasksLabel: string;
+  responsibleLabel: string;
+  statusLabel: string;
+}
 
 interface ExportPdfParams {
   company: Company;
   events: CalendarEvent[];
   users: User[];
   title?: string;
+  translations: PdfTranslations;
+  locale: 'en-US' | 'es-MX';
 }
 
 export async function exportReportPDF({
@@ -14,6 +24,8 @@ export async function exportReportPDF({
   events,
   users,
   title = "Compliance Report",
+  translations,
+  locale
 }: ExportPdfParams) {
   const { jsPDF } = await import("jspdf");
   const doc = new jsPDF();
@@ -27,13 +39,13 @@ export async function exportReportPDF({
 
   doc.setFontSize(10);
   doc.setTextColor(113, 113, 122); // zinc-500
-  doc.text(`Company: ${company.name} (${company.country})`, margin, y);
+  doc.text(`${translations.companyLabel}: ${company.name} (${company.country})`, margin, y);
   y += 6;
   if (company.rfc) {
-    doc.text(`Tax ID: ${company.rfc}`, margin, y);
+    doc.text(`${translations.taxIdLabel}: ${company.rfc}`, margin, y);
     y += 6;
   }
-  doc.text(`Generated: ${new Date().toLocaleString()}`, margin, y);
+  doc.text(`${translations.generatedLabel}: ${new Date().toLocaleString(locale)}`, margin, y);
   y += 10;
   
   doc.setDrawColor(228, 228, 231); // zinc-200
@@ -42,13 +54,13 @@ export async function exportReportPDF({
 
   doc.setFontSize(11);
   doc.setTextColor(24, 24, 27);
-  doc.text("Tasks / Events:", margin, y);
+  doc.text(`${translations.tasksLabel}:`, margin, y);
   y += 6;
 
   doc.setFontSize(9);
   events.slice(0, 120).forEach((e, i) => {
     const u = users.find((user) => user.id === e.assignee);
-    const line = `${i + 1}. [${e.category}] ${e.title} – ${fmtDate(e.date)} – Resp.: ${u?.name || "-"} – Status: ${e.status}`;
+    const line = `${i + 1}. [${e.category}] ${e.title} – ${fmtDate(e.date, locale)} – ${translations.responsibleLabel}: ${u?.name || "-"} – ${translations.statusLabel}: ${e.status}`;
     const split = doc.splitTextToSize(line, 180);
     if (y > 280) {
       doc.addPage();

@@ -1,8 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import type { Company } from '../../types';
 import Button from '../ui/Button';
+import { useTranslation } from '../../hooks/useTranslation';
 
 interface CompaniesModalProps {
   open: boolean;
@@ -15,6 +15,7 @@ interface CompaniesModalProps {
 }
 
 const CompaniesModal: React.FC<CompaniesModalProps> = ({ open, onClose, companies, setCompanies, editId, setEditId, setCompanyId }) => {
+  const { t } = useTranslation();
   const isEditing = !!editId;
   const initialFormState = { id: `c${Math.random().toString(36).slice(2, 8)}`, name: "", country: "MX", rfc: "" };
   const [form, setForm] = useState<Company>(initialFormState);
@@ -72,21 +73,21 @@ const CompaniesModal: React.FC<CompaniesModalProps> = ({ open, onClose, companie
     <div className="fixed inset-0 bg-black/50 dark:bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="w-full max-w-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl shadow-2xl animate-in fade-in-0 zoom-in-95">
         <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
-          <h3 className="text-zinc-900 dark:text-zinc-100 font-semibold text-lg">{isEditing ? 'Edit Company' : 'Add New Company'}</h3>
-          <button onClick={onClose} className="text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200" title="Close"><X className="w-5 h-5" /></button>
+          <h3 className="text-zinc-900 dark:text-zinc-100 font-semibold text-lg">{isEditing ? t('company_modal.edit_title') : t('company_modal.new_title')}</h3>
+          <button onClick={onClose} className="text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200" title={t('general.close')}><X className="w-5 h-5" /></button>
         </div>
         <div className="p-6 space-y-4">
           <div>
-            <label className="block text-sm text-zinc-600 dark:text-zinc-400 mb-1.5">Company Name</label>
+            <label className="block text-sm text-zinc-600 dark:text-zinc-400 mb-1.5">{t('company_modal.company_name')}</label>
             <input className={commonInputStyles} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm text-zinc-600 dark:text-zinc-400 mb-1.5">Country</label>
+              <label className="block text-sm text-zinc-600 dark:text-zinc-400 mb-1.5">{t('company_modal.country')}</label>
               <input className={commonInputStyles} value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} />
             </div>
             <div>
-              <label className="block text-sm text-zinc-600 dark:text-zinc-400 mb-1.5">Tax ID</label>
+              <label className="block text-sm text-zinc-600 dark:text-zinc-400 mb-1.5">{t('company_modal.tax_id')}</label>
               <input className={commonInputStyles} value={form.rfc || ""} onChange={(e) => setForm({ ...form, rfc: e.target.value })} />
             </div>
           </div>
@@ -94,12 +95,12 @@ const CompaniesModal: React.FC<CompaniesModalProps> = ({ open, onClose, companie
         <div className="p-4 border-t border-zinc-200 dark:border-zinc-800 flex justify-between items-center">
           <div>
             {isEditing && (
-              <Button title="Delete company" className="text-rose-600 hover:bg-rose-100 dark:text-rose-400 dark:hover:bg-rose-900/50" variant="ghost" onClick={handleDelete}>Delete</Button>
+              <Button title={t('general.delete') + " " + t('general.company')} className="text-rose-600 hover:bg-rose-100 dark:text-rose-400 dark:hover:bg-rose-900/50" variant="ghost" onClick={handleDelete}>{t('general.delete')}</Button>
             )}
           </div>
           <div className="flex gap-2">
-            <Button title="Cancel" variant="ghost" onClick={onClose}>Cancel</Button>
-            <Button title="Save" onClick={handleSave}>Save Changes</Button>
+            <Button title={t('general.cancel')} variant="ghost" onClick={onClose}>{t('general.cancel')}</Button>
+            <Button title={t('general.save')} onClick={handleSave}>{t('event_modal.save_changes')}</Button>
           </div>
         </div>
       </div>

@@ -1,5 +1,4 @@
-
-export const fmtDate = (d: string): string => new Date(d).toLocaleDateString('es-MX', {
+export const fmtDate = (d: string, locale: 'es-MX' | 'en-US' = 'es-MX'): string => new Date(d).toLocaleDateString(locale, {
   year: 'numeric',
   month: 'short',
   day: 'numeric',

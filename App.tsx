@@ -1,9 +1,8 @@
-
 import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { useCompanies } from './hooks/useCompanies';
 import { useEvents } from './hooks/useEvents';
-import { useSettings } from './hooks/useSettings';
-import type { Role, CalendarEvent, Theme, User, AppPermissions } from './types';
+import { useTranslation } from './hooks/useTranslation';
+import type { Role, CalendarEvent, Theme, User, AppPermissions, Categories, Template } from './types';
 
 import Header from "./components/layout/Header";
 import Sidebar from "./components/layout/Sidebar";
@@ -18,12 +17,13 @@ import TemplatesCategoriesModal from './components/modals/TemplatesCategoriesMod
 import CompaniesModal from './components/modals/CompaniesModal';
 import LoginScreen from "./components/auth/LoginScreen";
 import { todayISO } from './utils/helpers';
-import { seedUsers } from "./data/seedData";
+import { seedUsers, DEFAULT_CATEGORY_CONFIG, seedTemplates } from "./data/seedData";
 
 export default function App() {
   const [authenticatedUser, setAuthenticatedUser] = useState<User | null>(null);
   const [tab, setTab] = useState("calendar");
   const [theme, setTheme] = useState<Theme>('dark');
+  const { t } = useTranslation();
 
   const role = authenticatedUser?.role || 'cliente_miembro';
 
@@ -73,14 +73,26 @@ export default function App() {
     removeEvent: removeCalendarEvent
   } = useEvents(companyId);
 
-  const {
-    categories,
-    setCategories,
-    templates,
-    setTemplates,
-    isTplModalOpen,
-    setTplModalOpen,
-  } = useSettings();
+  // Settings state logic moved from useSettings hook
+  const getInitialCategories = useCallback((): Categories => {
+    const initialCategories: Categories = {};
+    for (const key in DEFAULT_CATEGORY_CONFIG) {
+        initialCategories[key] = {
+            label: t(`categories.${key}`),
+            dot: DEFAULT_CATEGORY_CONFIG[key as keyof typeof DEFAULT_CATEGORY_CONFIG]
+        };
+    }
+    return initialCategories;
+  }, [t]);
+
+  const [categories, setCategories] = useState<Categories>(getInitialCategories());
+  const [templates, setTemplates] = useState<Template[]>(seedTemplates);
+  const [isTplModalOpen, setTplModalOpen] = useState(false);
+  
+  useEffect(() => {
+    setCategories(getInitialCategories());
+  }, [getInitialCategories]);
+
 
   // Modal States
   const [isEventModalOpen, setEventModalOpen] = useState(false);
@@ -272,9 +284,9 @@ export default function App() {
 
         <main className="col-span-12 lg:col-span-9 space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <KpiCard label="Total Tasks" value={stats.total} />
-            <KpiCard label="Pending Tasks" value={stats.pending} />
-            <KpiCard label="Completed Tasks" value={stats.completed} />
+            <KpiCard label={t('kpi.total_tasks')} value={stats.total} />
+            <KpiCard label={t('kpi.pending_tasks')} value={stats.pending} />
+            <KpiCard label={t('kpi.completed_tasks')} value={stats.completed} />
           </div>
           {renderTabContent()}
         </main>
