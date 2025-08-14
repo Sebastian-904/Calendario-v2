@@ -1,5 +1,5 @@
 import React from 'react';
-import { Building2, Users, Calendar as CalIcon, ClipboardList, FileText, Settings, UserPlus, Edit, Trash2 } from 'lucide-react';
+import { Building, Building2, Users, Calendar as CalIcon, ClipboardList, FileText, Settings, UserPlus, Edit, Trash2 } from 'lucide-react';
 import type { Company, User, AppPermissions } from '../../types';
 import { Card, CardContent } from '../ui/Card';
 import Button from '../ui/Button';
@@ -61,6 +61,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           <nav className="flex flex-col">
             <NavItem icon={CalIcon} label={t('sidebar.nav_calendar')} active={tab === 'calendar'} onClick={() => setTab('calendar')} />
             <NavItem icon={ClipboardList} label={t('sidebar.nav_tasks')} active={tab === 'tasks'} onClick={() => setTab('tasks')} />
+            <NavItem icon={Building} label={t('sidebar.nav_company_info')} active={tab === 'company-info'} onClick={() => setTab('company-info')} />
             {permissions.canAccessReports && <NavItem icon={FileText} label={t('sidebar.nav_reports')} active={tab === 'reports'} onClick={() => setTab('reports')} />}
             {permissions.canAccessSettings && <NavItem icon={Settings} label={t('sidebar.nav_settings')} active={tab === 'settings'} onClick={() => setTab('settings')} />}
           </nav>

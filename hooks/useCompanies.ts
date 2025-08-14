@@ -1,4 +1,5 @@
 
+
 import { useState, useMemo, useCallback } from 'react';
 import type { Company, User } from '../types';
 import { seedCompanies, seedUsers } from '../data/seedData';
@@ -31,6 +32,10 @@ export const useCompanies = () => {
       [cId]: (prev[cId] || []).map(user => user.id === updatedUser.id ? updatedUser : user)
     }));
   }, []);
+  
+  const updateCompany = useCallback((companyId: string, updatedData: Company) => {
+    setCompanies(prev => prev.map(c => c.id === companyId ? updatedData : c));
+  }, []);
 
   const removeUser = useCallback((cId: string, userId: string) => {
     setAllUsers(prev => ({
@@ -54,6 +59,7 @@ export const useCompanies = () => {
     setEditCompanyId,
     addUser,
     updateUser,
+    updateCompany,
     removeUser,
   };
 };

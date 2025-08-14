@@ -9,8 +9,37 @@ export const mockLoginUsers: User[] = [
 ];
 
 export const seedCompanies: Company[] = [
-  { id: "c1", name: "My First Company", country: "MX", rfc: "ABC123456789" },
-  { id: "c2", name: "Another Client Inc.", country: "US", rfc: "XYZ987654321" },
+  { 
+    id: "c1", 
+    name: "My First Company", 
+    country: "MX", 
+    rfc: "ABC123456789",
+    legalName: "My First Company S.A. de C.V.",
+    economicActivity: "Manufacturing and Export of Automotive Parts",
+    taxAddress: "123 Innovation Dr, Tech Park, Monterrey, NL 64000",
+    phone: "+52 81 8000 1234",
+    incorporationDetails: { deedNumber: '58432', date: '2010-05-20', notary: 'Lic. Ana Torres' },
+    legalRepresentative: { deedNumber: '59110', date: '2015-11-01', notary: 'Lic. Ana Torres' },
+    immex: { registrationNumber: '12345-MX', modality: 'Industrial', authorizationDate: '2010-06-15' },
+    boardMembers: [
+      { id: 'bm1', personType: 'physical', name: 'Juan Perez', rfc: 'PEPJ800101ABC', role: 'legal_rep', nationality: 'Mexican', taxObligationInMX: true }
+    ],
+    operatingAddresses: [],
+    customsAgentAssignments: [],
+    complianceObligations: [],
+    legalNameChanges: [],
+  },
+  { 
+    id: "c2", 
+    name: "Another Client Inc.", 
+    country: "US", 
+    rfc: "XYZ987654321",
+    boardMembers: [],
+    operatingAddresses: [],
+    customsAgentAssignments: [],
+    complianceObligations: [],
+    legalNameChanges: [],
+  },
 ];
 
 export const seedUsers: Record<string, User[]> = {

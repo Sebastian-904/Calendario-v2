@@ -2,7 +2,7 @@ import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { useCompanies } from './hooks/useCompanies';
 import { useEvents } from './hooks/useEvents';
 import { useTranslation } from './hooks/useTranslation';
-import type { Role, CalendarEvent, Theme, User, AppPermissions, Categories, Template } from './types';
+import type { Role, CalendarEvent, Theme, User, AppPermissions, Categories, Template, Company } from './types';
 
 import Header from "./components/layout/Header";
 import Sidebar from "./components/layout/Sidebar";
@@ -11,6 +11,7 @@ import CalendarView from './components/views/CalendarView';
 import TasksView from './components/views/TasksView';
 import ReportsView from './components/views/ReportsView';
 import SettingsView from './components/views/SettingsView';
+import CompanyInfoView from './components/views/CompanyInfoView';
 import EventModal from './components/modals/EventModal';
 import UserModal from './components/modals/UserModal';
 import TemplatesCategoriesModal from './components/modals/TemplatesCategoriesModal';
@@ -44,6 +45,7 @@ export default function App() {
     companyId,
     setCompanyId,
     currentCompany,
+    updateCompany,
     currentUsers,
     isCoModalOpen,
     setCoModalOpen,
@@ -118,6 +120,7 @@ export default function App() {
         canAccessSettings: isAdminRole || isConsultantRole,
         canAccessReports: isAdminRole || isConsultantRole || isClientAdminRole,
         canUploadFiles: isAdminRole || isConsultantRole || isClientAdminRole,
+        canManageCompanyInfo: isAdminRole || isConsultantRole || isClientAdminRole,
     };
   }, [role]);
 
@@ -178,6 +181,11 @@ export default function App() {
     removeUser(companyId, userId);
   }, [removeUser, companyId]);
 
+  // --- Company Info Handler ---
+  const handleSaveCompanyInfo = useCallback((updatedCompany: Company) => {
+    updateCompany(companyId, updatedCompany);
+  }, [updateCompany, companyId]);
+
   // --- Auth Handlers ---
   const handleLogin = (user: User) => {
     setAuthenticatedUser(user);
@@ -224,6 +232,12 @@ export default function App() {
           onUpdateEvent={updateEvent}
           onRemoveEvent={removeCalendarEvent}
           onOpenTemplates={() => setTplModalOpen(true)}
+          permissions={permissions}
+        />;
+      case 'company-info':
+        return <CompanyInfoView 
+          company={currentCompany}
+          onSave={handleSaveCompanyInfo}
           permissions={permissions}
         />;
       case 'reports':
