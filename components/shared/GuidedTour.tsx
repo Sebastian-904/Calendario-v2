@@ -23,6 +23,7 @@ const GuidedTour: React.FC<GuidedTourProps> = ({ isOpen, onClose, role }) => {
     const [stepIndex, setStepIndex] = useState(0);
     const [position, setPosition] = useState({ top: '50%', left: '50%', transform: 'translate(-50%, -50%)' });
     const tooltipRef = useRef<HTMLDivElement>(null);
+    const activeTourElement = useRef<Element | null>(null);
     
     const steps = useMemo(() => {
         if (role === 'consultor' || role === 'admin') {
@@ -37,7 +38,13 @@ const GuidedTour: React.FC<GuidedTourProps> = ({ isOpen, onClose, role }) => {
     useEffect(() => {
         if (!isOpen || !currentStep) return;
 
+        // Clean up previous highlight
+        if(activeTourElement.current) {
+            activeTourElement.current.classList.remove('tour-highlight');
+        }
+
         const targetElement = document.querySelector(currentStep.target);
+        activeTourElement.current = targetElement;
 
         if (currentStep.target === 'final-step' || !targetElement) {
             setPosition({ top: '50%', left: '50%', transform: 'translate(-50%, -50%)' });
@@ -71,7 +78,9 @@ const GuidedTour: React.FC<GuidedTourProps> = ({ isOpen, onClose, role }) => {
         targetElement.classList.add('tour-highlight');
         
         return () => {
-            targetElement.classList.remove('tour-highlight');
+            if (targetElement) {
+                targetElement.classList.remove('tour-highlight');
+            }
         };
 
     }, [isOpen, currentStep, stepIndex]);
@@ -81,16 +90,27 @@ const GuidedTour: React.FC<GuidedTourProps> = ({ isOpen, onClose, role }) => {
         style.textContent = `
             .tour-highlight {
                 position: relative;
-                z-index: 10001;
+                z-index: 10001 !important;
                 box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
                 border-radius: 8px;
+                transition: box-shadow 0.3s ease-in-out;
             }
         `;
         document.head.appendChild(style);
         return () => {
             document.head.removeChild(style);
+            if (activeTourElement.current) {
+                activeTourElement.current.classList.remove('tour-highlight');
+            }
         };
     }, []);
+
+    const handleClose = () => {
+        if (activeTourElement.current) {
+            activeTourElement.current.classList.remove('tour-highlight');
+        }
+        onClose();
+    };
 
     if (!isOpen || steps.length === 0) return null;
 
@@ -98,13 +118,13 @@ const GuidedTour: React.FC<GuidedTourProps> = ({ isOpen, onClose, role }) => {
         if (!isLastStep) {
             setStepIndex(prev => prev + 1);
         } else {
-            onClose();
+            handleClose();
         }
     };
 
     const handlePrev = () => {
         if (stepIndex > 0) {
-            setStepIndex(prev => prev - 1);
+            setStepIndex(prev => prev + 1);
         }
     };
 
@@ -113,7 +133,7 @@ const GuidedTour: React.FC<GuidedTourProps> = ({ isOpen, onClose, role }) => {
             <div
                 ref={tooltipRef}
                 style={{ ...position }}
-                className="absolute w-80 bg-zinc-800 text-zinc-100 rounded-lg shadow-2xl p-4 animate-in fade-in-0 zoom-in-95"
+                className="absolute w-80 bg-zinc-800 text-zinc-100 rounded-lg shadow-2xl p-4 animate-in fade-in-0 zoom-in-95 z-[10002]"
             >
                 <p className="text-sm mb-4">{t(currentStep.contentKey)}</p>
                 <div className="flex items-center justify-between">
@@ -122,7 +142,7 @@ const GuidedTour: React.FC<GuidedTourProps> = ({ isOpen, onClose, role }) => {
                         {stepIndex > 0 && (
                              <Button size="sm" variant="ghost" onClick={handlePrev} className="!text-zinc-300 hover:!bg-zinc-700">{t('tour.prev')}</Button>
                         )}
-                        <Button size="sm" variant="outline" onClick={onClose} className="!border-zinc-600 !text-zinc-300 hover:!bg-zinc-700">{t('tour.skip')}</Button>
+                        <Button size="sm" variant="outline" onClick={handleClose} className="!border-zinc-600 !text-zinc-300 hover:!bg-zinc-700">{t('tour.skip')}</Button>
                         <Button size="sm" onClick={handleNext}>{isLastStep ? t('tour.finish') : t('tour.next')}</Button>
                     </div>
                 </div>
