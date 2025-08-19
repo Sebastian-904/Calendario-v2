@@ -1,4 +1,5 @@
 
+
 import { useState, useMemo, useCallback } from 'react';
 import type { CalendarEvent } from '../types';
 import { seedEvents } from '../data/seedData';
@@ -41,11 +42,19 @@ export const useEvents = (companyId: string) => {
       };
     });
   }, [companyId]);
+  
+  const setEventsForCompany = useCallback((cId: string, newEvents: CalendarEvent[]) => {
+      setStore(s => ({
+          ...s,
+          events: { ...s.events, [cId]: newEvents }
+      }));
+  }, []);
 
   return {
     events,
     addEvent,
     updateEvent,
     removeEvent,
+    setEventsForCompany,
   };
 };

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Building, Building2, Users, Calendar as CalIcon, ClipboardList, FileText, Settings, UserPlus, Edit, Trash2 } from 'lucide-react';
 import type { Company, User, AppPermissions } from '../../types';
@@ -7,6 +8,7 @@ import SectionTitle from '../shared/SectionTitle';
 import NavItem from '../shared/NavItem';
 import Badge from '../shared/Badge';
 import { useTranslation } from '../../hooks/useTranslation';
+import Avatar from '../shared/Avatar';
 
 interface SidebarProps {
   companies: Company[];
@@ -35,7 +37,11 @@ const Sidebar: React.FC<SidebarProps> = ({
         <CardContent className="space-y-3">
           <div className="text-sm text-zinc-500 dark:text-zinc-400">{t('general.company')}</div>
           <div className="flex items-center gap-2" data-tour-id="company-selector">
-            <Building2 className="w-4 h-4 text-zinc-600 dark:text-zinc-300 flex-shrink-0" />
+            {company.logoUrl ? (
+                <img src={company.logoUrl} alt={`${company.name} logo`} className="w-6 h-6 rounded-md object-contain" />
+            ) : (
+                <Building2 className="w-6 h-6 text-zinc-600 dark:text-zinc-300 flex-shrink-0 p-0.5" />
+            )}
             <select
               title={t('sidebar.select_company')}
               value={companyId}
@@ -46,9 +52,9 @@ const Sidebar: React.FC<SidebarProps> = ({
               {companies.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
           </div>
-          <div className="text-xs text-zinc-500 dark:text-zinc-500 pl-6">{t('sidebar.tax_id', { rfc: company?.rfc || "N/A" })}</div>
+          <div className="text-xs text-zinc-500 dark:text-zinc-500 pl-8">{t('sidebar.tax_id', { rfc: company?.rfc || "N/A" })}</div>
           {permissions.canManageCompanies && (
-            <div className="flex gap-2 mt-3 pl-6">
+            <div className="flex gap-2 mt-3 pl-8">
               <Button title={t('settings_view.add_company')} size="sm" variant="outline" onClick={onNewCompany}>{t('general.new')}</Button>
               <Button title={t('settings_view.edit_current')} size="sm" variant="ghost" onClick={onEditCompany} disabled={!companyId}>{t('general.edit')}</Button>
             </div>
@@ -82,11 +88,14 @@ const Sidebar: React.FC<SidebarProps> = ({
           </SectionTitle>
           <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
             {users.map(u => (
-              <div key={u.id} className="flex items-center justify-between bg-zinc-100 dark:bg-zinc-800/60 rounded-lg p-2 group">
-                <div>
-                  <div className="text-sm font-medium text-zinc-800 dark:text-zinc-100">{u.name}</div>
-                  <div className="text-xs text-zinc-500 dark:text-zinc-400">{u.email}</div>
-                  <div className="mt-1"><Badge>{t(`roles.${u.role}`)}</Badge></div>
+              <div key={u.id} className="flex items-center justify-between group">
+                <div className="flex items-center gap-3">
+                    <Avatar name={u.name} avatarUrl={u.avatarUrl} size="sm" />
+                    <div>
+                      <div className="text-sm font-medium text-zinc-800 dark:text-zinc-100">{u.name}</div>
+                      <div className="text-xs text-zinc-500 dark:text-zinc-400">{u.email}</div>
+                      <div className="mt-1"><Badge>{t(`roles.${u.role}`)}</Badge></div>
+                    </div>
                 </div>
                 {permissions.canManageUsers && (
                   <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">

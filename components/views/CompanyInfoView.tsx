@@ -6,7 +6,8 @@ import Button from '../ui/Button';
 import { Card, CardContent } from '../ui/Card';
 import { useTranslation } from '../../hooks/useTranslation';
 import { classNames, todayISO } from '../../utils/helpers';
-import * as XLSX from 'xlsx';
+import ObligationImportModal from '../modals/ObligationImportModal';
+
 
 interface CompanyInfoViewProps {
     company: Company;
@@ -315,47 +316,18 @@ const renderAgentItem = (t: Function, readOnly: boolean) => (item: CustomsAgentA
 
 const ComplianceObligationsSection: React.FC<Omit<ListSectionProps<ComplianceObligation>, 'renderItem' | 'title' | 'addButtonLabel' | 'items' | 'itemKey' | 'newItem'>> = (props) => {
     const { t, localCompany, setLocalCompany, readOnly } = props;
-    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [isImportModalOpen, setImportModalOpen] = useState(false);
 
-    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            const file = e.target.files[0];
-            try {
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    const data = event.target?.result;
-                    const workbook = XLSX.read(data, { type: 'binary', cellDates: true });
-                    const sheetName = workbook.SheetNames[0];
-                    const worksheet = workbook.Sheets[sheetName];
-                    const json = XLSX.utils.sheet_to_json(worksheet, { raw: false });
-
-                    const newObligations = json.map((row: any, index: number) => {
-                       const program = row['Program'] || row['Programa'] || 'General';
-                       const status = row['Status'] || row['Estado'] || 'compliant';
-                       const frequency = row['Frequency'] || row['Frecuencia'] || 'other';
-
-                       return {
-                            id: `co-excel-${Date.now()}-${index}`,
-                            program: ['IMMEX', 'PROSEC', 'CERTIVA', 'General'].includes(program) ? program : 'General',
-                            obligationType: row['Type'] || row['Tipo'] || '',
-                            submissionDate: row['Date'] || row['Fecha'] || todayISO(),
-                            status: ['compliant', 'non-compliant'].includes(status) ? status : 'compliant',
-                            frequency: ['monthly', 'annual', 'weekly', 'other'].includes(frequency) ? frequency : 'other',
-                       }
-                    }).filter(o => o.obligationType);
-
-                    setLocalCompany(prev => ({
-                        ...prev,
-                        complianceObligations: [...(prev.complianceObligations || []), ...newObligations]
-                    }));
-                };
-                reader.readAsBinaryString(file);
-            } catch (error) {
-                console.error("Error parsing Excel file:", error);
-            }
-        }
-        // Reset file input
-        if(fileInputRef.current) fileInputRef.current.value = "";
+    const handleImportedObligations = (newObligations: Omit<ComplianceObligation, 'id'>[]) => {
+        const obligationsWithIds = newObligations.map((o, i) => ({
+            ...o,
+            id: `imported-${Date.now()}-${i}`
+        }));
+        setLocalCompany(prev => ({
+            ...prev,
+            complianceObligations: [...(prev.complianceObligations || []), ...obligationsWithIds]
+        }));
+        setImportModalOpen(false);
     };
 
     const renderItem = (item: ComplianceObligation, onChange: Function, onRemove: Function) => (
@@ -392,7 +364,11 @@ const ComplianceObligationsSection: React.FC<Omit<ListSectionProps<ComplianceObl
     
     return (
         <>
-            <input type="file" ref={fileInputRef} onChange={handleFileUpload} accept=".xlsx, .xls" className="hidden" />
+           <ObligationImportModal 
+                open={isImportModalOpen}
+                onClose={() => setImportModalOpen(false)}
+                onComplete={handleImportedObligations}
+            />
             <ListSection
                 {...props}
                 title={t('company_info_view.sections.compliance_obligations')}
@@ -402,12 +378,12 @@ const ComplianceObligationsSection: React.FC<Omit<ListSectionProps<ComplianceObl
                 newItem={{ id: '', program: 'General', obligationType: '', submissionDate: todayISO(), status: 'compliant', frequency: 'annual' }}
                 renderItem={renderItem}
                 additionalHeader={!readOnly && (
-                    <>
-                        <Button size="sm" variant="outline" onClick={() => fileInputRef.current?.click()}>
+                    <div className="flex items-center gap-2">
+                        <Button size="sm" variant="outline" onClick={() => setImportModalOpen(true)}>
                             <Upload className="w-4 h-4 mr-2" /> {t('company_info_view.fields.upload_excel')}
                         </Button>
                         <p className="text-xs text-zinc-500 max-w-xs">{t('company_info_view.fields.excel_instructions')}</p>
-                    </>
+                    </div>
                 )}
             />
         </>

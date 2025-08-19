@@ -1,5 +1,6 @@
 
 
+
 import { useState, useMemo, useCallback } from 'react';
 import type { Company, User } from '../types';
 import { seedCompanies, seedUsers } from '../data/seedData';
@@ -43,6 +44,14 @@ export const useCompanies = () => {
       [cId]: (prev[cId] || []).filter(user => user.id !== userId)
     }));
   }, []);
+  
+  const addFullCompany = useCallback((company: Company, users: User[]) => {
+      setCompanies(prev => [...prev, company]);
+      setAllUsers(prev => ({
+          ...prev,
+          [company.id]: users
+      }));
+  }, []);
 
 
   return {
@@ -61,5 +70,6 @@ export const useCompanies = () => {
     updateUser,
     updateCompany,
     removeUser,
+    addFullCompany,
   };
 };

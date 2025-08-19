@@ -1,7 +1,7 @@
 
-
 export type Role = "admin" | "consultor" | "cliente_admin" | "cliente_miembro";
 export type Theme = "light" | "dark";
+export type TimeFormat = '12h' | '24h';
 
 export interface IncorporationDetails {
   deedNumber: string;
@@ -62,7 +62,7 @@ export interface ComplianceObligation {
   id: string;
   program: 'IMMEX' | 'PROSEC' | 'CERTIVA' | 'General';
   obligationType: string;
-  submissionDate: string;
+  submissionDate: string; // YYYY-MM-DD
   status: 'compliant' | 'non-compliant';
   frequency: 'monthly' | 'annual' | 'weekly' | 'other';
 }
@@ -72,6 +72,7 @@ export interface Company {
   name: string; // This is the commercial name
   country: string;
   rfc: string | null;
+  logoUrl?: string;
 
   // New detailed fields
   legalName?: string;
@@ -103,6 +104,7 @@ export interface User {
   email: string;
   role: Role;
   password?: string;
+  avatarUrl?: string;
 }
 
 export interface Category {
@@ -148,4 +150,25 @@ export interface AppPermissions {
     canAccessReports: boolean;
     canUploadFiles: boolean;
     canManageCompanyInfo: boolean;
+}
+
+// Types for Excel Import Wizard
+export interface SheetData {
+    name: string;
+    headers: string[];
+    data: Record<string, any>[];
+}
+
+export type MappedField = keyof Company | keyof User | keyof CalendarEvent | 'company_name' | 'company_rfc' | 'user_name' | 'user_email' | 'user_role' | 'task_title' | 'task_date' | 'task_category' | 'task_priority' | 'task_assignee_email' | 'task_status' | 'ignore';
+export type MappedObligationField = keyof ComplianceObligation | 'ignore';
+
+
+export type FieldMapping = Record<string, MappedField>; // { [excel_header]: application_field }
+
+export interface ImportWizardState {
+    step: number; // 0: closed, 1: upload, 2: map, 3: validate, 4: summary
+    file: File | null;
+    sheets: SheetData[];
+    mappings: Record<string, FieldMapping>; // { [sheet_name]: FieldMapping }
+    show: boolean;
 }

@@ -1,8 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { X } from 'lucide-react';
+
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { X, Upload } from 'lucide-react';
 import type { User, Role } from '../../types';
 import Button from '../ui/Button';
 import { useTranslation } from '../../hooks/useTranslation';
+import { predefinedAvatars } from '../../data/seedData';
+import Avatar from '../shared/Avatar';
 
 interface UserModalProps {
   open: boolean;
@@ -15,6 +18,7 @@ interface UserModalProps {
 const UserModal: React.FC<UserModalProps> = ({ open, onClose, onSave, editingUser, currentUserRole }) => {
   const { t } = useTranslation();
   const isEditing = !!editingUser;
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const getInitialState = useCallback(() => {
     return {
@@ -22,6 +26,7 @@ const UserModal: React.FC<UserModalProps> = ({ open, onClose, onSave, editingUse
       name: editingUser?.name || "",
       email: editingUser?.email || "",
       role: editingUser?.role || "cliente_miembro",
+      avatarUrl: editingUser?.avatarUrl,
     };
   }, [editingUser]);
 
@@ -55,8 +60,18 @@ const UserModal: React.FC<UserModalProps> = ({ open, onClose, onSave, editingUse
     }
   }
   
-  const canAssignAdmin = currentUserRole === 'admin' || currentUserRole === 'consultor';
+  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setForm(prev => ({ ...prev, avatarUrl: reader.result as string }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
+  const canAssignAdmin = currentUserRole === 'admin' || currentUserRole === 'consultor';
   const commonInputStyles = "w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 rounded-lg px-3 py-2 outline-none focus:ring-2 ring-emerald-500 border border-zinc-300 dark:border-zinc-700";
 
   return (
@@ -67,6 +82,24 @@ const UserModal: React.FC<UserModalProps> = ({ open, onClose, onSave, editingUse
           <button onClick={onClose} className="text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200" title={t('general.close')}><X className="w-5 h-5" /></button>
         </div>
         <div className="p-6 space-y-4">
+          <div className="flex flex-col items-center gap-4">
+            <Avatar name={form.name} avatarUrl={form.avatarUrl} size="xl" />
+            <input type="file" ref={fileInputRef} onChange={handleAvatarUpload} className="hidden" accept="image/*" />
+            <Button size="sm" variant="outline" onClick={() => fileInputRef.current?.click()}>
+              <Upload className="w-4 h-4 mr-2" />
+              {t('user_modal.upload_photo')}
+            </Button>
+          </div>
+          <div>
+            <label className="block text-sm text-zinc-600 dark:text-zinc-400 mb-1.5">{t('user_modal.choose_avatar')}</label>
+            <div className="grid grid-cols-6 gap-2">
+              {predefinedAvatars.map((avatar, index) => (
+                <button key={index} onClick={() => setForm(prev => ({ ...prev, avatarUrl: avatar }))}>
+                  <img src={avatar} alt={`Avatar ${index + 1}`} className="w-12 h-12 rounded-full ring-2 ring-offset-2 ring-offset-white dark:ring-offset-zinc-900 transition-all" style={{boxShadow: form.avatarUrl === avatar ? `0 0 0 2px #10b981` : 'none'}}/>
+                </button>
+              ))}
+            </div>
+          </div>
           <div>
             <label className="block text-sm text-zinc-600 dark:text-zinc-400 mb-1.5">{t('user_modal.full_name')}</label>
             <input className={commonInputStyles} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder={t('user_modal.full_name_placeholder')} />

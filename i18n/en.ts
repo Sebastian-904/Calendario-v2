@@ -1,3 +1,4 @@
+
 export const en = {
   general: {
     new: 'New',
@@ -69,12 +70,11 @@ export const en = {
   },
   header: {
     title: 'Compliance Calendar',
-    help_menu_title: 'Help & Manuals',
-    consultant_manual: 'Consultant Manual',
-    client_manual: 'Client Manual',
+    help_menu_title: 'Help Center',
     notifications: 'Notifications',
     logout: 'Log Out',
     language: 'Language',
+    edit_profile: 'Edit Profile',
   },
   sidebar: {
     select_company: 'Select company',
@@ -147,10 +147,15 @@ export const en = {
     activate: 'Activate',
     deactivate: 'Deactivate',
     templates_and_categories_desc: 'Manage global categories and task templates. You can also open the manager from any menu.',
+    templates_and_categories_desc_short: 'Manage global categories and task templates.',
     open_manager: 'Open Manager',
     companies_desc: 'Add new companies or edit general information for existing ones.',
     add_company: 'Add Company',
     edit_current: 'Edit Current',
+    display_preferences: 'Display Preferences',
+    time_format: 'Time Format',
+    '12h': '12-Hour',
+    '24h': '24-Hour',
   },
   login_screen: {
     subtitle: 'Please sign in to continue',
@@ -178,6 +183,9 @@ export const en = {
     role_client_member: 'Client – Member',
     role_restriction_note: 'The Admin and Consultant roles cannot be changed.',
     save_user: 'Save User',
+    profile_photo: 'Profile Photo',
+    upload_photo: 'Upload Photo',
+    choose_avatar: 'Or choose an avatar',
   },
   company_modal: {
     edit_title: 'Edit Company',
@@ -185,6 +193,15 @@ export const en = {
     company_name: 'Company Name',
     country: 'Country',
     tax_id: 'Tax ID',
+    creation_choice_subtitle: 'How would you like to add the new company?',
+    import_from_excel: 'Import from Excel',
+    import_from_excel_desc: 'Upload a file to create and populate the company automatically.',
+    create_manually: 'Create Manually',
+    create_manually_desc: 'Fill in the company details through a form.',
+    logo: 'Logo',
+    no_logo: 'No Logo',
+    upload_logo: 'Upload Logo',
+    remove_logo: 'Remove Logo',
   },
   tpl_cat_modal: {
     title: 'Templates & Categories',
@@ -271,7 +288,7 @@ export const en = {
       pending: 'Pending',
       add_obligation: 'Add Obligation',
       upload_excel: 'Upload Excel',
-      excel_instructions: 'Upload an XLSX file with columns: Program, Type, Date (YYYY-MM-DD), Status, Frequency. The header row will be skipped.',
+      excel_instructions: 'Upload an XLSX file with the compliance obligations.',
       program: 'Program',
       obligation_type: 'Obligation Type',
       submission_date: 'Submission Date',
@@ -288,14 +305,3 @@ export const en = {
     next: 'Next',
     prev: 'Prev',
     skip: 'Skip',
-    finish: 'Finish',
-    consultant: {
-        step1: 'Welcome! This is where you can switch between the companies you manage.',
-        step2: 'Use this menu to navigate between the main sections: Calendar, Tasks, Reports, etc.',
-        step3: 'Here you can see and manage the team for the selected company.',
-        step4: 'You can create a new task directly from the calendar view using this button.',
-        step5: 'If you need help, you can always find the user manuals right here.',
-        step6: "That's it! You're ready to start. Enjoy using Compliance Calendar Pro."
-    }
-  },
-};

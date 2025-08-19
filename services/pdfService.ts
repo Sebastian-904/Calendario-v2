@@ -1,3 +1,4 @@
+
 import type { Company, CalendarEvent, User, Categories } from '../types';
 import { fmtDate } from '../utils/helpers';
 import { jsPDF } from 'jspdf';
@@ -66,7 +67,9 @@ export async function exportReportPDF({
     },
     didDrawPage: (data) => {
         // Header
-        doc.addImage(appLogoBase64, 'SVG', margin, 12, 10, 10);
+        const logo = company.logoUrl || appLogoBase64;
+        const imageType = company.logoUrl?.split(';')[0].split('/')[1].toUpperCase() || 'SVG';
+        doc.addImage(logo, imageType, margin, 12, 10, 10);
         doc.setFontSize(16);
         doc.setTextColor(24, 24, 27); // zinc-900
         doc.text(title, margin + 14, 18);

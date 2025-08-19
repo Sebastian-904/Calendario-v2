@@ -1,8 +1,9 @@
+
 import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { useCompanies } from './hooks/useCompanies';
 import { useEvents } from './hooks/useEvents';
 import { useTranslation } from './hooks/useTranslation';
-import type { Role, CalendarEvent, Theme, User, AppPermissions, Categories, Template, Company } from './types';
+import type { Role, CalendarEvent, Theme, User, AppPermissions, Categories, Template, Company, ImportWizardState, TimeFormat } from './types';
 
 import Header from "./components/layout/Header";
 import Sidebar from "./components/layout/Sidebar";
@@ -20,14 +21,24 @@ import LoginScreen from "./components/auth/LoginScreen";
 import GuidedTour from "./components/shared/GuidedTour";
 import { todayISO } from './utils/helpers';
 import { seedUsers, DEFAULT_CATEGORY_CONFIG, seedTemplates } from "./data/seedData";
+import HelpCenterModal from "./components/modals/HelpCenterModal";
+import ImportWizardModal from "./components/modals/ImportWizardModal";
 
 export default function App() {
   const [authenticatedUser, setAuthenticatedUser] = useState<User | null>(null);
   const [tab, setTab] = useState("calendar");
   const [theme, setTheme] = useState<Theme>('dark');
+  const [timeFormat, setTimeFormat] = useState<TimeFormat>(() => {
+      return (localStorage.getItem('timeFormat') as TimeFormat) || '24h';
+  });
+  
   const { t } = useTranslation();
 
   const role = authenticatedUser?.role || 'cliente_miembro';
+  
+  useEffect(() => {
+    localStorage.setItem('timeFormat', timeFormat);
+  }, [timeFormat]);
 
   useEffect(() => {
     const root = window.document.documentElement;
@@ -54,7 +65,8 @@ export default function App() {
     setEditCompanyId,
     addUser,
     updateUser,
-    removeUser
+    removeUser,
+    addFullCompany
   } = useCompanies();
   
   // Effect to set the initial company for non-admin/consultant users
@@ -73,7 +85,8 @@ export default function App() {
     events,
     addEvent,
     updateEvent,
-    removeEvent: removeCalendarEvent
+    removeEvent: removeCalendarEvent,
+    setEventsForCompany
   } = useEvents(companyId);
 
   // Settings state logic moved from useSettings hook
@@ -104,13 +117,50 @@ export default function App() {
 
   const [isUserModalOpen, setUserModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
+  
+  const [isHelpModalOpen, setHelpModalOpen] = useState(false);
+
+  // Import Wizard State
+  const initialWizardState: ImportWizardState = { step: 0, file: null, sheets: [], mappings: {}, show: false };
+  const [importWizardState, setImportWizardState] = useState<ImportWizardState>(() => {
+    try {
+      const savedState = localStorage.getItem('importWizardState');
+      return savedState ? JSON.parse(savedState) : initialWizardState;
+    } catch (e) {
+      return initialWizardState;
+    }
+  });
+  
+  useEffect(() => {
+    if(importWizardState.show) {
+      localStorage.setItem('importWizardState', JSON.stringify(importWizardState));
+    } else {
+      localStorage.removeItem('importWizardState');
+    }
+  }, [importWizardState]);
+
+  const handleStartImport = () => {
+    setCoModalOpen(false);
+    setImportWizardState(s => ({ ...s, show: true, step: 1 }));
+  };
+
+  const handleCloseImportWizard = () => {
+      setImportWizardState(initialWizardState);
+  };
+  
+  const handleImportComplete = (importedData: { company: Company; users: User[]; events: CalendarEvent[] }) => {
+    addFullCompany(importedData.company, importedData.users);
+    setEventsForCompany(importedData.company.id, importedData.events);
+    setCompanyId(importedData.company.id); // Switch to the newly created company
+    handleCloseImportWizard();
+  };
 
   // Guided Tour State
   const [isTourOpen, setTourOpen] = useState(false);
 
   useEffect(() => {
       const tourCompleted = localStorage.getItem('tourCompleted');
-      if (!tourCompleted && authenticatedUser && (authenticatedUser.role === 'consultor' || authenticatedUser.role === 'admin')) {
+      if (!tourCompleted && authenticatedUser && (authenticatedUser.role === 'consultor')) {
           setTimeout(() => setTourOpen(true), 1000); // Delay to ensure UI renders
       }
   }, [authenticatedUser]);
@@ -179,6 +229,12 @@ export default function App() {
     setEditingUser(user);
     setUserModalOpen(true);
   }, []);
+
+  const handleOpenProfile = useCallback(() => {
+    if (authenticatedUser) {
+        openEditUserModal(authenticatedUser);
+    }
+  }, [authenticatedUser, openEditUserModal]);
 
   const closeUserModal = useCallback(() => {
     setUserModalOpen(false);
@@ -285,6 +341,8 @@ export default function App() {
           onOpenTemplates={() => setTplModalOpen(true)}
           onEditCompany={() => { setEditCompanyId(companyId); setCoModalOpen(true); }}
           onNewCompany={() => { setEditCompanyId(null); setCoModalOpen(true); }}
+          timeFormat={timeFormat}
+          setTimeFormat={setTimeFormat}
         />;
       case 'calendar':
       default:
@@ -303,7 +361,15 @@ export default function App() {
 
   return (
     <div className="min-h-screen text-zinc-900 dark:text-zinc-100 font-sans">
-      <Header user={authenticatedUser} onLogout={handleLogout} theme={theme} toggleTheme={toggleTheme} />
+      <Header 
+        user={authenticatedUser} 
+        onLogout={handleLogout} 
+        theme={theme} 
+        toggleTheme={toggleTheme}
+        onOpenHelp={() => setHelpModalOpen(true)}
+        onOpenProfile={handleOpenProfile}
+        timeFormat={timeFormat}
+      />
 
       <div className="max-w-screen-2xl mx-auto px-4 py-6 grid grid-cols-12 gap-6">
         <Sidebar
@@ -352,7 +418,8 @@ export default function App() {
         setCompanies={setCompanies} 
         editId={editCompanyId} 
         setEditId={setEditCompanyId} 
-        setCompanyId={setCompanyId} 
+        setCompanyId={setCompanyId}
+        onStartImport={handleStartImport}
       />
       <EventModal 
         open={isEventModalOpen} 
@@ -371,10 +438,21 @@ export default function App() {
         editingUser={editingUser}
         currentUserRole={role}
       />
+      <HelpCenterModal
+        open={isHelpModalOpen}
+        onClose={() => setHelpModalOpen(false)}
+        role={authenticatedUser.role as Role}
+      />
       <GuidedTour
           isOpen={isTourOpen}
           onClose={handleTourEnd}
           role={authenticatedUser.role as Role}
+      />
+      <ImportWizardModal
+        state={importWizardState}
+        setState={setImportWizardState}
+        onClose={handleCloseImportWizard}
+        onComplete={handleImportComplete}
       />
     </div>
   );
