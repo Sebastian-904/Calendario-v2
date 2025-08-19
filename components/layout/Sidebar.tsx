@@ -34,7 +34,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       <Card>
         <CardContent className="space-y-3">
           <div className="text-sm text-zinc-500 dark:text-zinc-400">{t('general.company')}</div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2" data-tour-id="company-selector">
             <Building2 className="w-4 h-4 text-zinc-600 dark:text-zinc-300 flex-shrink-0" />
             <select
               title={t('sidebar.select_company')}
@@ -56,7 +56,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         </CardContent>
       </Card>
 
-      <Card>
+      <Card data-tour-id="main-nav">
         <CardContent className="p-0">
           <nav className="flex flex-col">
             <NavItem icon={CalIcon} label={t('sidebar.nav_calendar')} active={tab === 'calendar'} onClick={() => setTab('calendar')} />
@@ -68,7 +68,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         </CardContent>
       </Card>
 
-      <Card>
+      <Card data-tour-id="team-list">
         <CardContent>
           <SectionTitle 
             icon={Users}

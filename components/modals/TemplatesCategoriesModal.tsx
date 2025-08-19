@@ -14,10 +14,17 @@ interface TCModalProps {
   setTemplates: (t: Template[]) => void;
 }
 
+const colorPalette = [
+    "bg-zinc-400", "bg-rose-400", "bg-amber-400", "bg-emerald-400",
+    "bg-sky-400", "bg-blue-400", "bg-violet-400", "bg-fuchsia-400",
+];
+
 const TemplatesCategoriesModal: React.FC<TCModalProps> = ({ open, onClose, categories, setCategories, templates, setTemplates }) => {
   const { t } = useTranslation();
   const [catKey, setCatKey] = useState("");
   const [catLabel, setCatLabel] = useState("");
+  const [catColor, setCatColor] = useState(colorPalette[0]);
+
   const [tplName, setTplName] = useState("");
   const [tplCategory, setTplCategory] = useState("fiscal");
   const [tplPriority, setTplPriority] = useState<Template['priority']>("Medium");
@@ -47,9 +54,10 @@ const TemplatesCategoriesModal: React.FC<TCModalProps> = ({ open, onClose, categ
   const handleAddCategory = () => {
     if (!catKey || !catLabel) return;
     const key = catKey.toLowerCase().replace(/\s+/g, '_');
-    setCategories({ ...categories, [key]: { label: catLabel, dot: "bg-zinc-400" }});
+    setCategories({ ...categories, [key]: { label: catLabel, dot: catColor }});
     setCatKey("");
     setCatLabel("");
+    setCatColor(colorPalette[0]);
   };
 
   const handleAddTemplate = () => {
@@ -82,10 +90,22 @@ const TemplatesCategoriesModal: React.FC<TCModalProps> = ({ open, onClose, categ
                 </div>
               ))}
             </div>
-            <div className="grid grid-cols-3 gap-2 p-2 bg-zinc-100 dark:bg-zinc-800/50 rounded-lg">
-              <input title={t('general.key')} className={classNames("col-span-1", commonInputStyles)} placeholder={t('general.key')} value={catKey} onChange={(e) => setCatKey(e.target.value)} />
-              <input title={t('general.label')} className={classNames("col-span-2", commonInputStyles)} placeholder={t('general.label')} value={catLabel} onChange={(e) => setCatLabel(e.target.value)} />
-              <div className="col-span-3">
+            <div className="space-y-3 p-2 bg-zinc-100 dark:bg-zinc-800/50 rounded-lg">
+              <div className="grid grid-cols-3 gap-2">
+                <input title={t('general.key')} className={classNames("col-span-1", commonInputStyles)} placeholder={t('general.key')} value={catKey} onChange={(e) => setCatKey(e.target.value)} />
+                <input title={t('general.label')} className={classNames("col-span-2", commonInputStyles)} placeholder={t('general.label')} value={catLabel} onChange={(e) => setCatLabel(e.target.value)} />
+              </div>
+              <div>
+                 <div className="text-sm text-zinc-600 dark:text-zinc-400 mb-1.5">{t('tpl_cat_modal.color')}</div>
+                 <div className="flex flex-wrap gap-2">
+                    {colorPalette.map(color => (
+                        <button key={color} onClick={() => setCatColor(color)} className="w-6 h-6 rounded-full" title={color}>
+                            <div className={classNames("w-full h-full rounded-full ring-2 ring-offset-2 ring-offset-zinc-100 dark:ring-offset-zinc-800/50 transition-all", color, catColor === color ? 'ring-emerald-500' : 'ring-transparent')}></div>
+                        </button>
+                    ))}
+                 </div>
+              </div>
+              <div>
                 <Button title={t('tpl_cat_modal.add_category')} size="sm" className="w-full" onClick={handleAddCategory}>{t('tpl_cat_modal.add_category')}</Button>
               </div>
             </div>

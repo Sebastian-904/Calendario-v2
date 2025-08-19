@@ -40,18 +40,28 @@ const ReportsView: React.FC<ReportsViewProps> = ({ events, users, categories, co
 
   const handleExport = (type: 'monthly' | 'pending') => {
     if (!company) return;
-    const translations: PdfTranslations = {
-      companyLabel: t('reports_view.pdf.company_label'),
-      taxIdLabel: t('reports_view.pdf.tax_id_label'),
-      generatedLabel: t('reports_view.pdf.generated_label'),
-      tasksLabel: t('reports_view.pdf.tasks_label'),
-      responsibleLabel: t('reports_view.pdf.responsible_label'),
-      statusLabel: t('reports_view.pdf.status_label'),
+    const pdfTranslations: PdfTranslations = {
+        company_label: t('reports_view.pdf.company_label'),
+        tax_id_label: t('reports_view.pdf.tax_id_label'),
+        generated_label: t('reports_view.pdf.generated_label'),
+        page_label: t('reports_view.pdf.page_label'),
+        col_title: t('reports_view.pdf.col_title'),
+        col_date: t('reports_view.pdf.col_date'),
+        col_category: t('reports_view.pdf.col_category'),
+        col_priority: t('reports_view.pdf.col_priority'),
+        col_assignee: t('reports_view.pdf.col_assignee'),
+        col_status: t('reports_view.pdf.col_status'),
+        priority_high: t('priorities.High'),
+        priority_medium: t('priorities.Medium'),
+        priority_low: t('priorities.Low'),
+        status_pending: t('statuses.Pending'),
+        status_in_progress: t('statuses.In Progress'),
+        status_completed: t('statuses.Completed'),
     };
     const reportTitle = type === 'monthly' ? t('reports_view.pdf.monthly_report_title') : t('reports_view.pdf.pending_report_title');
     const reportEvents = type === 'monthly' ? events : events.filter(e => e.status !== 'Completed');
 
-    exportReportPDF({ company, events: reportEvents, users, title: reportTitle, translations, locale });
+    exportReportPDF({ company, events: reportEvents, users, categories, title: reportTitle, translations: pdfTranslations, locale });
   }
 
   const handleExportAllAccess = () => {

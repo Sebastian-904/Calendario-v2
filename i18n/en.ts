@@ -22,6 +22,13 @@ export const en = {
     label: 'Label',
     key: 'Key',
     name: 'Name',
+    no_items: 'No items to display.',
+  },
+  greeting: {
+    morning: 'Good morning, {name}!',
+    afternoon: 'Good afternoon, {name}!',
+    evening: 'Good evening, {name}!',
+    subtitle: "Here's the summary for {companyName}.",
   },
   priorities: {
     High: 'High',
@@ -117,9 +124,13 @@ export const en = {
       company_label: 'Company',
       tax_id_label: 'Tax ID',
       generated_label: 'Generated',
-      tasks_label: 'Tasks / Events',
-      responsible_label: 'Resp.',
-      status_label: 'Status',
+      page_label: 'Page',
+      col_title: 'Title',
+      col_date: 'Date',
+      col_category: 'Category',
+      col_priority: 'Priority',
+      col_assignee: 'Assignee',
+      col_status: 'Status',
     },
   },
   settings_view: {
@@ -179,6 +190,7 @@ export const en = {
     title: 'Templates & Categories',
     delete_category_tooltip: 'Delete category',
     add_category: 'Add Category',
+    color: 'Color',
     delete_template_tooltip: 'Delete template',
     no_templates: 'No templates yet.',
     template_name_placeholder: 'Template Name',
@@ -271,5 +283,19 @@ export const en = {
       compliant: 'Compliant',
       non_compliant: 'Non-compliant',
     },
+  },
+  tour: {
+    next: 'Next',
+    prev: 'Prev',
+    skip: 'Skip',
+    finish: 'Finish',
+    consultant: {
+        step1: 'Welcome! This is where you can switch between the companies you manage.',
+        step2: 'Use this menu to navigate between the main sections: Calendar, Tasks, Reports, etc.',
+        step3: 'Here you can see and manage the team for the selected company.',
+        step4: 'You can create a new task directly from the calendar view using this button.',
+        step5: 'If you need help, you can always find the user manuals right here.',
+        step6: "That's it! You're ready to start. Enjoy using Compliance Calendar Pro."
+    }
   },
 };

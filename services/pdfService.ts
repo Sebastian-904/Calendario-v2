@@ -1,74 +1,90 @@
-import type { Company, CalendarEvent, User } from '../types';
+import type { Company, CalendarEvent, User, Categories } from '../types';
 import { fmtDate } from '../utils/helpers';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 export interface PdfTranslations {
-  companyLabel: string;
-  taxIdLabel: string;
-  generatedLabel: string;
-  tasksLabel: string;
-  responsibleLabel: string;
-  statusLabel: string;
+  [key: string]: string;
 }
 
 interface ExportPdfParams {
   company: Company;
   events: CalendarEvent[];
   users: User[];
+  categories: Categories;
   title?: string;
   translations: PdfTranslations;
   locale: 'en-US' | 'es-MX';
 }
 
+const appLogoBase64 = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMwYWM1M2UiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMTIgMjJzOC00IDgtMTBWMWMwIDAgLTMuNSAxLjUtOCAxLjVTNCAxIDQgMXYxMWMwIDYgOCAxMCA4IDEweiIvPjwvc3ZnPg==";
+
+
 export async function exportReportPDF({
   company,
   events,
   users,
+  categories,
   title = "Compliance Report",
   translations,
   locale
 }: ExportPdfParams) {
-  const { jsPDF } = await import("jspdf");
+  
   const doc = new jsPDF();
   const margin = 14;
-  let y = 16;
 
-  doc.setFontSize(14);
-  doc.setTextColor(24, 24, 27); // zinc-900
-  doc.text(title, margin, y);
-  y += 8;
-
-  doc.setFontSize(10);
-  doc.setTextColor(113, 113, 122); // zinc-500
-  doc.text(`${translations.companyLabel}: ${company.name} (${company.country})`, margin, y);
-  y += 6;
-  if (company.rfc) {
-    doc.text(`${translations.taxIdLabel}: ${company.rfc}`, margin, y);
-    y += 6;
-  }
-  doc.text(`${translations.generatedLabel}: ${new Date().toLocaleString(locale)}`, margin, y);
-  y += 10;
+  const tableBody = events.map(event => {
+    const assignee = users.find(u => u.id === event.assignee)?.name || '-';
+    return [
+        event.title,
+        fmtDate(event.date, locale),
+        categories[event.category]?.label || event.category,
+        translations[`priority_${event.priority.toLowerCase()}`] || event.priority,
+        assignee,
+        translations[`status_${event.status.replace(' ', '_').toLowerCase()}`] || event.status,
+    ];
+  });
   
-  doc.setDrawColor(228, 228, 231); // zinc-200
-  doc.line(margin, y, 210 - margin, y);
-  y += 8;
+  const tableHeaders = [
+    translations.col_title,
+    translations.col_date,
+    translations.col_category,
+    translations.col_priority,
+    translations.col_assignee,
+    translations.col_status,
+  ];
 
-  doc.setFontSize(11);
-  doc.setTextColor(24, 24, 27);
-  doc.text(`${translations.tasksLabel}:`, margin, y);
-  y += 6;
+  autoTable(doc, {
+    head: [tableHeaders],
+    body: tableBody,
+    startY: 45,
+    margin: { top: 45 },
+    theme: 'grid',
+    headStyles: {
+        fillColor: [39, 39, 42], // zinc-800
+        textColor: [250, 250, 250]
+    },
+    didDrawPage: (data) => {
+        // Header
+        doc.addImage(appLogoBase64, 'SVG', margin, 12, 10, 10);
+        doc.setFontSize(16);
+        doc.setTextColor(24, 24, 27); // zinc-900
+        doc.text(title, margin + 14, 18);
 
-  doc.setFontSize(9);
-  events.slice(0, 120).forEach((e, i) => {
-    const u = users.find((user) => user.id === e.assignee);
-    const line = `${i + 1}. [${e.category}] ${e.title} – ${fmtDate(e.date, locale)} – ${translations.responsibleLabel}: ${u?.name || "-"} – ${translations.statusLabel}: ${e.status}`;
-    const split = doc.splitTextToSize(line, 180);
-    if (y > 280) {
-      doc.addPage();
-      y = 16;
+        doc.setFontSize(10);
+        doc.setTextColor(113, 113, 122); // zinc-500
+        doc.text(`${translations.company_label}: ${company.name} (${company.country})`, margin, 30);
+        if (company.rfc) {
+            doc.text(`${translations.tax_id_label}: ${company.rfc}`, margin, 35);
+        }
+
+        // Footer
+        const pageCount = doc.getNumberOfPages();
+        doc.setFontSize(8);
+        doc.setTextColor(161, 161, 170); // zinc-400
+        doc.text(`${translations.generated_label}: ${new Date().toLocaleString(locale)}`, margin, doc.internal.pageSize.height - 10);
+        doc.text(`${translations.page_label} ${data.pageNumber} / ${pageCount}`, doc.internal.pageSize.width - margin, doc.internal.pageSize.height - 10, { align: 'right' });
     }
-    doc.setTextColor(82, 82, 91); // zinc-600
-    doc.text(split, margin, y);
-    y += 5 + Math.max(0, split.length - 1) * 4;
   });
 
   doc.save(`${company.name.replace(/\s+/g, '_')}_report.pdf`);

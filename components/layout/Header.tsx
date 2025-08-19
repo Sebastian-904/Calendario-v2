@@ -75,7 +75,7 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout, theme, toggleTheme }) =
             )}
           </div>
           
-          <div className="relative" ref={helpMenuRef}>
+          <div className="relative" ref={helpMenuRef} data-tour-id="help-menu">
             <button onClick={() => setHelpOpen(prev => !prev)} className="p-2 rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors" title={t('header.help_menu_title')}>
                 <HelpCircle className="w-5 h-5 text-zinc-500 dark:text-zinc-300" />
             </button>

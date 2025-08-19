@@ -26,15 +26,25 @@ const CalendarView: React.FC<CalendarViewProps> = ({ events, users, categories, 
   
   const handleExport = () => {
     if(company){
-       const translations: PdfTranslations = {
-        companyLabel: t('reports_view.pdf.company_label'),
-        taxIdLabel: t('reports_view.pdf.tax_id_label'),
-        generatedLabel: t('reports_view.pdf.generated_label'),
-        tasksLabel: t('reports_view.pdf.tasks_label'),
-        responsibleLabel: t('reports_view.pdf.responsible_label'),
-        statusLabel: t('reports_view.pdf.status_label'),
+       const pdfTranslations: PdfTranslations = {
+        company_label: t('reports_view.pdf.company_label'),
+        tax_id_label: t('reports_view.pdf.tax_id_label'),
+        generated_label: t('reports_view.pdf.generated_label'),
+        page_label: t('reports_view.pdf.page_label'),
+        col_title: t('reports_view.pdf.col_title'),
+        col_date: t('reports_view.pdf.col_date'),
+        col_category: t('reports_view.pdf.col_category'),
+        col_priority: t('reports_view.pdf.col_priority'),
+        col_assignee: t('reports_view.pdf.col_assignee'),
+        col_status: t('reports_view.pdf.col_status'),
+        priority_high: t('priorities.High'),
+        priority_medium: t('priorities.Medium'),
+        priority_low: t('priorities.Low'),
+        status_pending: t('statuses.Pending'),
+        status_in_progress: t('statuses.In Progress'),
+        status_completed: t('statuses.Completed'),
       };
-      exportReportPDF({ company, events, users, title: t('reports_view.pdf.calendar_report_title'), translations, locale });
+      exportReportPDF({ company, events, users, categories, title: t('reports_view.pdf.calendar_report_title'), translations: pdfTranslations, locale });
     }
   };
   
@@ -45,7 +55,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ events, users, categories, 
         right={
           <div className="flex items-center gap-2">
             {permissions.canCreateEvents && (
-              <Button title={t('calendar_view.new_event')} variant="outline" onClick={() => onNewEvent(todayISO())}>
+              <Button data-tour-id="new-event-btn" title={t('calendar_view.new_event')} variant="outline" onClick={() => onNewEvent(todayISO())}>
                 <Plus className="w-4 h-4 mr-2" />{t('general.new')}
               </Button>
             )}

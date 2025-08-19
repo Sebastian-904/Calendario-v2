@@ -22,6 +22,13 @@ export const es = {
     label: 'Etiqueta',
     key: 'Clave',
     name: 'Nombre',
+    no_items: 'No hay elementos para mostrar.',
+  },
+  greeting: {
+    morning: '¡Buen día, {name}!',
+    afternoon: '¡Buenas tardes, {name}!',
+    evening: '¡Buenas noches, {name}!',
+    subtitle: 'Aquí está el resumen para {companyName}.',
   },
   priorities: {
     High: 'Alta',
@@ -117,9 +124,13 @@ export const es = {
       company_label: 'Empresa',
       tax_id_label: 'RFC',
       generated_label: 'Generado',
-      tasks_label: 'Tareas / Eventos',
-      responsible_label: 'Resp.',
-      status_label: 'Estado',
+      page_label: 'Página',
+      col_title: 'Título',
+      col_date: 'Fecha',
+      col_category: 'Categoría',
+      col_priority: 'Prioridad',
+      col_assignee: 'Asignado',
+      col_status: 'Estado',
     },
   },
   settings_view: {
@@ -179,6 +190,7 @@ export const es = {
     title: 'Plantillas y Categorías',
     delete_category_tooltip: 'Eliminar categoría',
     add_category: 'Agregar Categoría',
+    color: 'Color',
     delete_template_tooltip: 'Eliminar plantilla',
     no_templates: 'Aún no hay plantillas.',
     template_name_placeholder: 'Nombre de la Plantilla',
@@ -271,5 +283,19 @@ export const es = {
       compliant: 'Cumple',
       non_compliant: 'No Cumple',
     },
+  },
+  tour: {
+    next: 'Siguiente',
+    prev: 'Anterior',
+    skip: 'Saltar',
+    finish: 'Finalizar',
+    consultant: {
+        step1: '¡Bienvenido! Aquí es donde puedes cambiar entre las empresas que administras.',
+        step2: 'Usa este menú para navegar entre las secciones principales: Calendario, Tareas, Reportes, etc.',
+        step3: 'Aquí puedes ver y gestionar el equipo de la empresa seleccionada.',
+        step4: 'Puedes crear una nueva tarea directamente desde la vista de calendario con este botón.',
+        step5: 'Si necesitas ayuda, siempre puedes encontrar los manuales de usuario aquí mismo.',
+        step6: '¡Eso es todo! Estás listo para empezar. Disfruta usando Compliance Calendar Pro.'
+    }
   },
 };

@@ -17,6 +17,7 @@ import UserModal from './components/modals/UserModal';
 import TemplatesCategoriesModal from './components/modals/TemplatesCategoriesModal';
 import CompaniesModal from './components/modals/CompaniesModal';
 import LoginScreen from "./components/auth/LoginScreen";
+import GuidedTour from "./components/shared/GuidedTour";
 import { todayISO } from './utils/helpers';
 import { seedUsers, DEFAULT_CATEGORY_CONFIG, seedTemplates } from "./data/seedData";
 
@@ -103,6 +104,22 @@ export default function App() {
 
   const [isUserModalOpen, setUserModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
+
+  // Guided Tour State
+  const [isTourOpen, setTourOpen] = useState(false);
+
+  useEffect(() => {
+      const tourCompleted = localStorage.getItem('tourCompleted');
+      if (!tourCompleted && authenticatedUser && (authenticatedUser.role === 'consultor' || authenticatedUser.role === 'admin')) {
+          setTimeout(() => setTourOpen(true), 1000); // Delay to ensure UI renders
+      }
+  }, [authenticatedUser]);
+
+  const handleTourEnd = () => {
+      localStorage.setItem('tourCompleted', 'true');
+      setTourOpen(false);
+  };
+
 
   // --- Permission Logic ---
   const permissions: AppPermissions = useMemo(() => {
@@ -216,6 +233,15 @@ export default function App() {
     return currentUsers;
   }, [authenticatedUser, role, currentUsers]);
 
+  const getGreeting = useCallback(() => {
+      if (!authenticatedUser) return "";
+      const hour = new Date().getHours();
+      let greetingKey = 'greeting.evening';
+      if (hour >= 5 && hour < 12) greetingKey = 'greeting.morning';
+      if (hour >= 12 && hour < 19) greetingKey = 'greeting.afternoon';
+      return t(greetingKey, { name: authenticatedUser.name.split(' ')[0] });
+  }, [authenticatedUser, t]);
+
   if (!authenticatedUser) {
     return <LoginScreen onLogin={handleLogin} />;
   }
@@ -297,6 +323,11 @@ export default function App() {
         />
 
         <main className="col-span-12 lg:col-span-9 space-y-6">
+          <div className="mb-4">
+             <h1 className="text-2xl font-bold text-zinc-800 dark:text-zinc-200">{getGreeting()}</h1>
+             <p className="text-zinc-500 dark:text-zinc-400">{t('greeting.subtitle', { companyName: currentCompany.name })}</p>
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <KpiCard label={t('kpi.total_tasks')} value={stats.total} />
             <KpiCard label={t('kpi.pending_tasks')} value={stats.pending} />
@@ -339,6 +370,11 @@ export default function App() {
         onSave={handleSaveUser}
         editingUser={editingUser}
         currentUserRole={role}
+      />
+      <GuidedTour
+          isOpen={isTourOpen}
+          onClose={handleTourEnd}
+          role={authenticatedUser.role as Role}
       />
     </div>
   );
